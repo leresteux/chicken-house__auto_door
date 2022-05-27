@@ -38,21 +38,10 @@ RTC_DS3231 rtc;
 //servomoteur continu
 #include <Servo.h>
 Servo servo_porte;
-
-
-
 /******************* définitions des pins ************************************/
-
-// capteur effet hall :
 const byte capteur_pin = 13;     // capteur fin de course bas de la porte (D0 sur esp8266)
-
-const byte sda_pin = A4;
-const byte scl_pin = A5;
-
 const byte DHTPin = 5;
-
 const byte bouton_UPandDOWN = 2;
-
 const byte servo_pin = 9;
 /*************************** configuration ********************************************/
 const int heure_ouverture = 6;
@@ -91,7 +80,7 @@ byte  minute_maintenant;
 /*************************** setUp ***************************************/
 void setup() {
 
-  Serial.begin(115200);
+  Serial.begin(9600);
   dht.begin();
 
   pinMode(capteur_pin, INPUT_PULLUP);
@@ -108,15 +97,15 @@ void setup() {
     Serial.println("Couldn't find RTC");
     Serial.flush();
 
+  } else {
+    serial_date();
   }
-  // January 21, 2014 at 3am you would call:
- // rtc.adjust(DateTime(2022, 5, 27, 18, 12, 50));
+  
+/*** reglage heure ***/
+// s'écrit ainsi rtc.adjust(DateTime(année, mois, jour, heure, minute, second));
+// rtc.adjust(DateTime(2022, 5, 27, 19, 50, 50));
 
 }
-
-
-
-
 
 void loop() {
 
@@ -238,12 +227,28 @@ void porte_descend() {
     etat_porte = 0;
     delay(500);
 
-  servo_porte.detach();
+    servo_porte.detach();
 
   }
 }
 
 void horloge() {
+  serial_date();
+  DateTime now = rtc.now();
+  heure_maintenant = now.hour();
+  minute_maintenant = now.minute();
+  delay(10);
+  // wake up !!!! verification que la porte est bien ouverte
+  if (heure_maintenant == heure_ouverture && minute_maintenant == minute_ouverture ) {
+    porte_monte();
+  }
+  //time to sleep chickens <3 // verification que la porte est fermée
+  else if ( heure_maintenant == heure_fermeture && minute_maintenant == minute_fermeture) {
+    porte_descend();
+  }
+
+}
+void serial_date() {
   DateTime now = rtc.now();
   Serial.print(now.year(), DEC);
   Serial.print('/');
@@ -257,21 +262,4 @@ void horloge() {
   Serial.print(':');
   Serial.print(now.second(), DEC);
   Serial.println();
-
-
-
-  // maintenant on utilise un circuit horloge en temps réel :
-
-  heure_maintenant = now.hour();
-  minute_maintenant = now.minute();
-  delay(10);
-  // wake up !!!! verification que la porte est bien ouverte
-  if (heure_maintenant == heure_ouverture && heure_maintenant == minute_ouverture ) {
-    porte_monte();
-  }
-  //time to sleep chickens <3 // verification que la porte est fermée
-  else if ( heure_maintenant == heure_fermeture && minute_maintenant == minute_fermeture) {
-    porte_descend();
-  }
-
 }
