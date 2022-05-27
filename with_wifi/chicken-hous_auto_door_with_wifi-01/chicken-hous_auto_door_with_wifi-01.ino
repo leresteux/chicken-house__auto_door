@@ -1,4 +1,3 @@
-
 /* TODO
     un chrono pour la durée de monté et descente de la porte
     détecter position initiale de la porte avec les capteurs à effet hall, (et lever la porte quand on boote le système si état inconnu ?)
@@ -8,20 +7,39 @@
 
 */
 
+/******************* Hardware **************************/
+/*
+ *  ESP8266
+ *  capteur hall
+ *  servo
+ *  dht
+ *  clock DS3231
+ *  1 ou 2 bouton(s)
+ */
 
 /******************* Librairies **************************/
+/*
+    DHT sensor from adafruit
+    Adafruit_MQTT
+    adafruit IO Arduino
+    Chrono
+    DS3231
+    NTPClient
 
-#include <ESP8266WiFi.h>
 
+*/
+//#include <ESP8266WiFi.h>
 
-#include "Adafruit_MQTT.h"
-
+// from adafruit
+#include <DHT.h>
 
 #include "Adafruit_MQTT.h"
 #include "Adafruit_MQTT_Client.h"
 #include "AdafruitIO_WiFi.h"
 
-#include <DHT.h>
+#include "Servo.h"
+
+
 //ntp
 #include <NTPClient.h>
 #include <WiFiUdp.h>
@@ -45,7 +63,7 @@ Chrono horloge_Chrono;
 
 DS3231 myRTC;
 
-
+Servo servo_porte;
 
 
 // nom des pins esp8266 : https://mechatronicsblog.com/esp8266-nodemcu-pinout-for-arduino-ide/
@@ -54,23 +72,17 @@ DS3231 myRTC;
 /******************* définitions des pins ************************************/
 
 // capteur effet hall :
-const byte capteur_bas = 5;     // capteur fin de course bas de la porte (D0 sur esp8266)
-const byte capteur_haut =  16;      // capteur fin de course haut de la porte (D1 sur esp8266)
-
-// controlleur moteur
-// https://passionelectronique.fr/tutoriel-l298n/
-
-const byte moteur_a = 14; // D5 sur esp
-const byte moteur_b = 0; // D3 sur esp
-const byte moteur_enable = 4; // D2 sur esp
-
+const byte capteur = 5;     // capteur fin de course bas de la porte (D0 sur esp8266)
 
 const byte sda_pin = 13; // D7 sur esp8266
 const byte scl_pin = 12; // D6 sur esp8266
 
 const byte DHTPin = 2;
 
+const byte bouton_a = 8; // bouton a sur pin D8
+const byte bouton_b = 0; // bouton a sur pin A0
 
+const byte servo_pin = 14; // D5 sur esp
 /*************************** configuration ********************************************/
 const int heure_ouverture = 6;
 const int minute_ouverture = 00;
@@ -78,26 +90,23 @@ const int minute_ouverture = 00;
 const int heure_fermeture = 22;
 const int minute_fermeture = 00;
 
+const int temps_porte_max = 4000; // temps ouverture maximum en millisecondes, si dépassé, on arrête le moteur
+const int temps_porte_descend = 3000; // temps fermeture maximum en millisecondes, si dépassé, on arrête le moteur
 
 
-const int temps_porte_max = 6000; // temps ouverture/fermeture maximum en millisecondes, si dépassé, on arrête le moteur
-
-
-const int bouton_a = 8; // bouton a sur pin D8
-const int bouton_b = 0; // bouton a sur pin A0
 
 
 /************************* WiFi Access Point *********************************/
 
-#define WLAN_SSID       "fablabke-4g"
-#define WLAN_PASS       "nowayjustforfablabke"
+#define WLAN_SSID       "XXX"
+#define WLAN_PASS       "XXX"
 
 /************************* Adafruit.io Setup *********************************/
 
 #define AIO_SERVER      "io.adafruit.com"
 #define AIO_SERVERPORT  1883                   // use 8883 for SSL
-#define AIO_USERNAME    "fablabke"
-#define AIO_KEY         "aio_HjhX26FRFBl3ZlItSqpxq1QbTdH1"
+#define AIO_USERNAME    "XXX"
+#define AIO_KEY         "XXX"
 
 AdafruitIO_WiFi io(AIO_USERNAME, AIO_KEY, WLAN_SSID, WLAN_PASS);
 
@@ -193,18 +202,16 @@ void setup() {
   //mqtt.subscribe(&porte);
 
 
-  pinMode(capteur_bas, INPUT);
-  pinMode(capteur_haut, INPUT);
+  pinMode(capteur, INPUT);
 
-  pinMode(moteur_a, OUTPUT);
-  pinMode(moteur_b, OUTPUT);
-  pinMode(moteur_enable, OUTPUT);
+  servo_porte.attach(servo_pin); // D5 sur esp
+  servo_porte.writeMicroseconds(1500);
 
   pinMode(bouton_a, INPUT_PULLUP);
   pinMode(bouton_b, INPUT_PULLUP);
 
-  digitalWrite(moteur_enable, LOW);
 
+  servo_porte.detach();
 
 
   Serial.println("Connexion a client ntp en cours");
@@ -213,7 +220,7 @@ void setup() {
 
   timeClient.setTimeOffset(7200);
 
-  Serial.println("Connexion au serfeur mqtt en cours");
+  Serial.println("Connexion au serveur mqtt en cours");
   MQTT_connect();
 
   Log.publish("Chicken controler booté");
@@ -235,13 +242,6 @@ void setup() {
 
 
 }
-
-
-
-
-
-
-
 
 void loop() {
 
@@ -323,21 +323,15 @@ void porte_monte() {
 
   Serial.println("Demande ouverture porte");
 
-  // active le moteur
-
-  digitalWrite(moteur_enable, HIGH);
-
 
   int temps = millis();
 
 
-  // tant que le capter haut n'est pas proche d'un aimant, faire tourner le moteur
-  while (digitalRead(capteur_haut) == HIGH && digitalRead(capteur_haut) == HIGH && digitalRead(capteur_haut) == HIGH)
+  // tant que le capteur haut n'est pas proche d'un aimant, faire tourner le moteur
+  while (digitalRead(capteur) == HIGH && digitalRead(capteur) == HIGH && digitalRead(capteur) == HIGH)
   {
     //Serial.println("Capteur haut inactif");
-    digitalWrite(moteur_a, HIGH);
-    digitalWrite(moteur_b, LOW);
-
+    servo_porte.writeMicroseconds(2000);
 
     // on vérifie si ça ne fait pas trop longtemps que cette porte essaie de bouger :-)
     if (millis() > temps + temps_porte_max) {
@@ -350,23 +344,11 @@ void porte_monte() {
     delay(5);
   }
 
-  // frein moteur
-  digitalWrite(moteur_a, LOW);
-  digitalWrite(moteur_b, LOW);
-
-
-  envoiCapteurs();
-
-  Log.publish("Porte montée");
-
-
+  servo_porte.writeMicroseconds(1500);
   delay(500);
-
-  // couper le moteur
-  digitalWrite(moteur_enable, LOW);
-
-
-
+  servo_porte.detach();
+  envoiCapteurs();
+  Log.publish("Porte montée");
 
 }
 
@@ -374,45 +356,23 @@ void porte_descend() {
 
   Serial.println("Demande fermeture porte");
 
-  // active le moteur
-  digitalWrite(moteur_enable, HIGH);
-
+  servo_porte.attach(servo_pin);
+  
   int temps = millis();
 
-  // tant que le capter bas n'est pas proche d'un aimant, faire tourner le moteur
-  while (digitalRead(capteur_bas) == HIGH && digitalRead(capteur_bas) == HIGH && digitalRead(capteur_bas) == HIGH)
-  {
-    Serial.println("Capteur bas inactif");
-    digitalWrite(moteur_a, LOW);
-    digitalWrite(moteur_b, HIGH);
-
-    // on vérifie si ça ne fait pas trop longtemps que cette porte essaie de bouger :-)
-    if (millis() > temps + temps_porte_max) {
-      Serial.println("Capteur bas inactif depuis trop longtemps, moteur coupé!");
-      Log.publish("Capteur bas inactif depuis trop longtemps, moteur coupé!");
-      break;
-    }
-
-    delay(5);
+  // on vérifie si ça ne fait pas trop longtemps que cette porte essaie de bouger :-)
+  while (millis() > temps + temps_porte_descend) {
+    servo_porte.writeMicroseconds(-2000);
   }
 
-
+  delay(5);
   // frein moteur
-  digitalWrite(moteur_a, LOW);
-  digitalWrite(moteur_b, LOW);
-
-
-  envoiCapteurs();
-
-
+  servo_porte.writeMicroseconds(1500);
   delay(500);
-
   // couper le moteur
-  digitalWrite(moteur_enable, LOW);
-
+  servo_porte.detach();
   envoiCapteurs();
   Log.publish("Porte descendue");
-
 
 }
 
@@ -462,13 +422,8 @@ void envoiCapteurs() {
     Serial.println(F("Humidity Failed to send to IO"));
   }
 
-  if (! DoorUp.publish(!digitalRead(capteur_haut))) {
+  if (! DoorUp.publish(!digitalRead(capteur))) {
     Serial.println(F("Door up Failed to send to IO"));
-  }
-
-
-  if (! DoorDown.publish(!digitalRead(capteur_bas))) {
-    Serial.println(F("Door down Failed to send to IO"));
   }
 
 
@@ -480,16 +435,12 @@ void envoiCapteurs() {
 
 
 
-  Serial.print("Capteur haut : ");
-  Serial.println(!digitalRead(capteur_haut));
+  Serial.print("Capteur : ");
+  Serial.println(!digitalRead(capteur));
 
-
-  Serial.print("Capteur bas : ");
-  Serial.println(!digitalRead(capteur_bas));
 
 }
 void horloge() {
-
 
   // ancien code qui utilisait un client NTP :
   /*
