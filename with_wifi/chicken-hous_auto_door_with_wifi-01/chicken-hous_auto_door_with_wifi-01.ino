@@ -5,6 +5,8 @@
     calcul levé et couhcer de soleil : https://github.com/signetica/SunRise
 
 
+bouton verifier code
+
 */
 
 /******************* Hardware **************************/
@@ -79,7 +81,7 @@ const byte scl_pin = 12; // D6 sur esp8266
 
 const byte DHTPin = 2;
 
-const byte bouton_a = 8; // bouton a sur pin D8
+const byte bouton_UPandDOWN = 8; // bouton a sur pin D8
 const byte bouton_b = 0; // bouton a sur pin A0
 
 const byte servo_pin = 14; // D5 sur esp
@@ -313,6 +315,16 @@ void loop() {
 
   ESP.wdtFeed();
 
+  if (digitalRead(bouton_UPandDOWN) == LOW) {
+    // Serial.print("bouton a pressé ");
+
+    if (etat_porte == 0) {
+      porte_monte();
+    }
+    else if (etat_porte == 1) {
+      porte_descend();
+    }
+  }
 
 }
 
@@ -478,18 +490,17 @@ void horloge() {
 
 
 
-  // maintenant on utilise un circuit horloge en temps réel :
+    // maintenant on utilise un circuit horloge en temps réel :
 
   heure = myRTC.getHour(h12Flag, pmFlag);
   minute = myRTC.getMinute();
-
-  if (heure == heure_ouverture && minute == minute_ouverture) {
-    Log.publish("C'est l'heure d'ouverture");
+  delay(10);
+  // wake up !!!! verification que la porte est bien ouverte
+  if (heure >= heure_ouverture && heure < heure_fermeture && minute == minute_ouverture) {
     porte_monte();
   }
-
-  if (heure == heure_fermeture && minute == minute_fermeture) {
-    Log.publish("C'est l'heure de fermeture");
+  //time to sleep chickens <3 // verification que la porte est fermée
+  else if (heure < heure_ouverture || heure >= heure_fermeture && minute == minute_fermeture) {
     porte_descend();
   }
 

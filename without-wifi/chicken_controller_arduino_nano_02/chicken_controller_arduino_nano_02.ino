@@ -1,10 +1,23 @@
+
+
+/******************* Hardware **************************/
 /*
- * utilise un arduino nano + ds3231 + 2 capteurs de Hall pour possition de la porte + Pont H + un moteur DC
- * Fablabke 2022
+ *  uno
+ *  capteur hall
+ *  servo
+ *  dht
+ *  clock DS3231
+ *  1 ou 2 bouton(s)
  */
 
-
 /******************* Librairies **************************/
+/*
+    DHT sensor from adafruit
+    Chrono
+    DS3231
+
+
+*/
 
 
 // INCLUDE CHRONO LIBRARY : http://github.com/SofaPirate/Chrono
@@ -15,34 +28,32 @@
 Chrono capteur_Chrono;
 Chrono horloge_Chrono;
 
-
-
 // real time clock, module DS3231
 #include <DS3231.h>
 #include <Wire.h> // pour i2c
 
 DS3231 myRTC;
 
+//servomoteur continu
+#include <Servo.h> 
+Servo servo_porte;
 
-
-
-// nom des pins esp8266 : https://mechatronicsblog.com/esp8266-nodemcu-pinout-for-arduino-ide/
 
 
 /******************* définitions des pins ************************************/
 
 // capteur effet hall :
-const byte capteur_bas = 8;
-const byte capteur_haut =  7;
+const byte capteur = 5;     // capteur fin de course bas de la porte (D0 sur esp8266)
 
-// controlleur moteur
-// https://passionelectronique.fr/tutoriel-l298n/
+const byte sda_pin = A4;  
+const byte scl_pin = A5; 
 
-const byte moteur_a = 3; //  D3 nano
-const byte moteur_b = 4; //  D4 nano
+const byte DHTPin = 5;
 
+const byte bouton_a = 2; // bouton a sur pin D8
+const byte bouton_b = 3; // bouton a sur pin A0
 
-
+const byte servo_pin = 10; // D5 sur esp
 /*************************** configuration ********************************************/
 const int heure_ouverture = 6;
 const int minute_ouverture = 00;
@@ -50,10 +61,11 @@ const int minute_ouverture = 00;
 const int heure_fermeture = 22;
 const int minute_fermeture = 00;
 
-const int temps_porte_max = 6000; // temps ouverture/fermeture maximum en millisecondes, si dépassé, on arrête le moteur
+const int temps_porte_max = 4000; // temps ouverture maximum en millisecondes, si dépassé, on arrête le moteur
+const int temps_porte_descend = 3000; // temps fermeture maximum en millisecondes, si dépassé, on arrête le moteur
 
-const int bouton_UPandDOWN = 9;
-//const int bouton_DOWN = 10
+
+
 
 
 
