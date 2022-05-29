@@ -39,19 +39,19 @@ RTC_DS3231 rtc;
 #include <Servo.h>
 Servo servo_porte;
 /******************* définitions des pins ************************************/
-const byte capteur_pin = 13;     // capteur fin de course bas de la porte (D0 sur esp8266)
+const byte capteur_pin = 8;     // capteur fin de course bas de la porte (D0 sur esp8266)
 const byte DHTPin = 5;
 const byte bouton_UPandDOWN = 2;
-const byte servo_pin = 9;
+const byte servo_pin = 10;
 /*************************** configuration ********************************************/
-const int heure_ouverture = 6;
+const int heure_ouverture = 7;
 const int minute_ouverture = 00;
 
-const int heure_fermeture = 22;
-const int minute_fermeture = 00;
+const int heure_fermeture = 21;
+const int minute_fermeture = 30;
 
-const int temps_porte_max = 4000; // temps ouverture maximum en millisecondes, si dépassé, on arrête le moteur
-const int temps_porte_descend = 3000; // temps fermeture maximum en millisecondes, si dépassé, on arrête le moteur
+const int temps_porte_max = 10000; // temps ouverture maximum en millisecondes, si dépassé, on arrête le moteur
+const int temps_porte_descend = 4500; // temps fermeture maximum en millisecondes, si dépassé, on arrête le moteur
 
 
 /*************************** variables ***************************************/
@@ -70,8 +70,8 @@ DHT dht(DHTPin, DHTType);
 bool etat_porte = 0;
 bool etat_capteur = 0;
 
-const byte servo_vitesse_up = 100;
-const byte servo_vitesse_down = 80;
+const byte servo_vitesse_up = 100;//ok
+const byte servo_vitesse_down = 80;//ok
 const byte servo_vitesse_pause = 90;
 
 byte heure_maintenant;
@@ -103,7 +103,7 @@ void setup() {
   
 /*** reglage heure ***/
 // s'écrit ainsi rtc.adjust(DateTime(année, mois, jour, heure, minute, second));
-// rtc.adjust(DateTime(2022, 5, 27, 19, 50, 50));
+// rtc.adjust(DateTime(2022, 5, 29, 18, 00, 00));
 
 }
 
@@ -116,15 +116,15 @@ void loop() {
       porte_monte();
       delay(2000);
       servo_porte.write(servo_vitesse_pause);
-      delay(5000);
+      delay(2000);
           porte_descend();
       delay(2000);
           servo_porte.write(servo_vitesse_pause);
-      delay(5000);
+      delay(2000);
 
     }
-  */
-
+  
+* /
   btn();
 
 
@@ -161,8 +161,7 @@ void porte_monte() {
   } else {
     porte_Chrono.restart();  // restart the crono so that it triggers again later
     servo_porte.attach(servo_pin); // D5 sur esp
-    servo_porte.write(90);
-
+   
     // tant que le capteur_pin haut n'est pas proche d'un aimant, faire tourner le moteur
     while (1) {
 
