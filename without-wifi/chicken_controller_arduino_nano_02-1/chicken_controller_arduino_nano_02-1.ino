@@ -44,10 +44,10 @@ const byte DHTPin = 5;
 const byte bouton_UPandDOWN = 2;
 const byte servo_pin = 10;
 /*************************** configuration ********************************************/
-const int heure_ouverture = 7;
-const int minute_ouverture = 00;
+const int heure_ouverture = 6;
+const int minute_ouverture = 30;
 
-const int heure_fermeture = 21;
+const int heure_fermeture = 22;
 const int minute_fermeture = 30;
 
 const int temps_porte_max = 10000; // temps ouverture maximum en millisecondes, si dépassé, on arrête le moteur
@@ -87,7 +87,7 @@ void setup() {
   pinMode(bouton_UPandDOWN, INPUT_PULLUP);
 
   servo_porte.attach(servo_pin); // D5 sur esp
-  servo_porte.write(90);
+//  servo_porte.write(90);
   // servo_porte.detach();
 
   delay(1000);
@@ -124,7 +124,7 @@ void loop() {
 
     }
   
-* /
+*/
   btn();
 
 
@@ -168,10 +168,11 @@ void porte_monte() {
       //Serial.println("capteur_pin haut inactif");
       servo_porte.write(servo_vitesse_up);
       delay(5);
-      Serial.print(digitalRead(capteur_pin));
+      Serial.println(digitalRead(capteur_pin));
+      Serial.println(digitalRead("."));
 
       if (digitalRead(capteur_pin) == LOW)
-      {
+      { 
         Serial.println("Capteur haut OK ");
 
         break;

@@ -1,4 +1,4 @@
-/* TODO
+ /* TODO
     un chrono pour la durée de monté et descente de la porte
     détecter position initiale de la porte avec les capteurs à effet hall, (et lever la porte quand on boote le système si état inconnu ?)
     integrer le board au blog
