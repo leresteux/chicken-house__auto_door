@@ -1,4 +1,4 @@
-// leresteux.net (feat P.jadin) / 2022 
+// leresteux.net avec 123piano.com / 2022 
 /******************* Hardware **************************/
 /*
     arduino uno / nano
