@@ -1,32 +1,22 @@
-
-
+// leresteux.net (feat P.jadin) / 2022 
 /******************* Hardware **************************/
 /*
-    uno
+    arduino uno / nano
     capteur hall
-    servo
-    dht
+    servo continu
     clock DS3231
-    1 ou 2 bouton(s)
+    1 
 */
-
 /******************* Librairies **************************/
 /*
-    DHT sensor from adafruit
+    Servo
     Chrono
-    RTClib (https://microcontrollerslab.com/ds3231-rtc-module-pinout-interfacing-with-arduino-features/)
-      SCL A5
-      SDA A4
-
-
+    RTClib (https://microcontrollerslab.com/ds3231-rtc-module-pinout-interfacing-with-arduino-features/) en IIC 
 */
 
 
 // INCLUDE CHRONO LIBRARY : http://github.com/SofaPirate/Chrono
 #include <Chrono.h>
-
-#include <DHT.h>
-//objet chrono pour DHT11 && NTP (horloge)
 
 Chrono horloge_Chrono;
 Chrono porte_Chrono;
@@ -40,7 +30,6 @@ RTC_DS3231 rtc;
 Servo servo_porte;
 /******************* définitions des pins ************************************/
 const byte capteur_pin = 8;     // capteur fin de course bas de la porte (D0 sur esp8266)
-const byte DHTPin = 5;
 const byte bouton_UPandDOWN = 2;
 const byte servo_pin = 10;
 /*************************** configuration ********************************************/
@@ -55,17 +44,6 @@ const int temps_porte_descend = 4500; // temps fermeture maximum en milliseconde
 
 
 /*************************** variables ***************************************/
-//dht
-float t, h;
-
-// for DHT11,
-//      VCC: 5V or 3V
-//      GND: GND
-//      DATA: 2
-
-#define DHTType DHT11
-
-DHT dht(DHTPin, DHTType);
 
 bool etat_porte = 0;
 bool etat_capteur = 0;
@@ -81,14 +59,10 @@ byte  minute_maintenant;
 void setup() {
 
   Serial.begin(9600);
-  dht.begin();
 
   pinMode(capteur_pin, INPUT_PULLUP);
   pinMode(bouton_UPandDOWN, INPUT_PULLUP);
 
-  servo_porte.attach(servo_pin); // D5 sur esp
-//  servo_porte.write(90);
-  // servo_porte.detach();
 
   delay(1000);
 
@@ -127,8 +101,6 @@ void loop() {
 */
   btn();
 
-
-
   //*** toutes les 30 secondes, on check l'horloge
   if (horloge_Chrono.hasPassed(5000) ) {
     horloge_Chrono.restart();  // restart the crono so that it triggers again later
@@ -143,10 +115,11 @@ void loop() {
 void btn () {
   if ( digitalRead(bouton_UPandDOWN) == LOW ) {
     Serial.print("bouton est pressé ");
-
+//si la porte est ouverte elle se ferme
     if (etat_porte == 0) {
       porte_monte();
     }
+// si fermée elle s'ouvre
     else if (etat_porte == 1) {
       porte_descend();
     }
