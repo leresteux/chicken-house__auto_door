@@ -6,6 +6,7 @@
     capteur hall > capteur à placer pour la fermeture (new)
     servo continu
     clock DS3231
+    bouton poussoir
 
 */
 /******************* Librairies **************************/
