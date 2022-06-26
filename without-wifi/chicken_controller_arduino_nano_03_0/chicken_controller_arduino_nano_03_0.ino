@@ -1,5 +1,6 @@
 
 // leresteux.net avec 123piano.com / 2022
+// did with this wonderfull theme : https://github.com/leresteux/arduino_theme
 /******************* Hardware **************************
 
     arduino uno / nano
