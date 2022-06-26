@@ -1,16 +1,16 @@
 
 // leresteux.net avec 123piano.com / 2022
-/******************* Hardware **************************/
-/*
+/******************* Hardware **************************
+
     arduino uno / nano
     capteur hall > capteur à placer pour la fermeture (new)
     servo continu
     clock DS3231
     bouton poussoir
 
-*/
-/******************* Librairies **************************/
-/*
+
+******************* Librairies **************************
+
     Servo
     Chrono
     RTClib (https://microcontrollerslab.com/ds3231-rtc-module-pinout-interfacing-with-arduino-features/) en IIC
@@ -34,7 +34,7 @@ Servo servo_porte;
 const byte capteur_pin = 8;     // capteur fin de course bas de la porte (D0 sur esp8266)
 const byte bouton_UPandDOWN = 2;
 const byte servo_pin = 10;
-/*************************** configuration ********************************************/
+/******************* configuration ********************************************/
 const int heure_ouverture = 6;
 const int minute_ouverture = 30;
 
@@ -85,7 +85,7 @@ void setup() {
   /***tester la bonne valeur en ° pour mettre el pause le servo ***/
   // test_pause_servo();
 }
-
+/*************************** loop ***************************************/
 void loop() {
 
   /*** code de test de la porte***/
@@ -93,7 +93,7 @@ void loop() {
 
   btn();
 
-  //*** toutes les 30 secondes, on check l'horloge
+  //toutes les 30 secondes, on check l'horloge
   if (horloge_Chrono.hasPassed(5000) ) {
     horloge_Chrono.restart();  // restart the crono so that it triggers again later
     horloge();
