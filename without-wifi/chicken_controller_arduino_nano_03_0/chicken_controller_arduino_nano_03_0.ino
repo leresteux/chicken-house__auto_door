@@ -88,22 +88,9 @@ void setup() {
 
 void loop() {
 
-  // code de test de la porte:
-  /*
-    while (1)
-    {
-      porte_monte();
-      delay(2000);
-      servo_porte.write(servo_vitesse_pause);
-      delay(2000);
-          porte_descend();
-      delay(2000);
-          servo_porte.write(servo_vitesse_pause);
-      delay(2000);
+  /*** code de test de la porte***/
+  //test_ouverture_fermeture_porte_en_continue();
 
-    }
-
-  */
   btn();
 
   //*** toutes les 30 secondes, on check l'horloge
@@ -254,6 +241,21 @@ void serial_date() {
   Serial.print(now.second(), DEC);
   Serial.println();
 }
+void test_ouverture_fermeture_porte_en_continue(){
+    while (1)
+    {
+      porte_monte();
+      delay(2000);
+      servo_porte.write(servo_vitesse_pause);
+      delay(2000);
+      porte_descend();
+      delay(2000);
+      servo_porte.write(servo_vitesse_pause);
+      delay(2000);
+
+ }
+}
+
 /*
 
                                                          &@@@@&(
