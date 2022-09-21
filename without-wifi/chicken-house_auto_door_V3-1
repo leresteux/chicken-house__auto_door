@@ -1,0 +1,36 @@
+
+/*
+1 janvier 2022 	09H00 	17h00 	+1 min.	
+1 fevrier 2022 	08h30 	17h45 	+3 min. 
+1 mars 2022 	07h30 	18h30 	+3 min.
++1 heure
+1 avril 2022 	07h30 	20h30 	+4 min.
+1 mai 2022 	06h30 	21h00 	+3 min.
+1 juin 2022 	06H00 	22h30 	+2 min.
+1 juillet 2022 	06H00 	22H 	-1 min.
+1 aout 2022 	06h30 	21h30 	-2 min.
+1 septembre 2022 	07h00 	20h30
+1 octobre 2022 	08H 	19h30 	-4 min.
+- 1HEURE
+1 novembre 2022 	07h30 	17h30 	-4 min.
+1 decembre 2021 	08h30 	17H 	-1 min.
+
+convertion sur base de l'heure d'été
+1 janvier 2022 	10H00 	18h00 	+1 min.	
+1 fevrier 2022 	09h30 	18h45 	+3 min. 
+1 mars 2022 	08h30 	19h30 	+3 min.
++1 heure
+1 avril 2022 	07h30 	20h30 	+4 min.
+1 mai 2022 	06h30 	21h00 	+3 min.
+1 juin 2022 	06H00 	22h30 	+2 min.
+1 juillet 2022 	06H00 	22H 	-1 min.
+1 aout 2022 	06h30 	21h30 	-2 min.
+1 septembre 2022 	07h00 	20h30
+1 octobre 2022 	08H 	19h30 	-4 min.
+- 1HEURE
+1 novembre 2022 	08h30 	18h30 	-4 min.
+1 decembre 2021 	09h30 	18H 	-1 min.
+*/
+
+unsign int sunUp[12][2] =  {10, 0,9,30,8,30,7,30,6,30,6,00,6,00,6,30,7,00,8,00,8,30,9,30};
+unsign int sunDown[12][2] =  {18, 0,18,45,19,30,20,30,21,0,22,30,22,00,21,30,20,30,19,30,18,30,18,30,18,00};
