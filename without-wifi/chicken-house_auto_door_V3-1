@@ -1,7 +1,9 @@
+/******************* About **************************
 
-// leresteux.net avec 123piano.com / 2022
-// did with this wonderfull theme : https://github.com/leresteux/arduino_theme
-/******************* Hardware **************************
+ leresteux.net avec 123piano.com / 2022
+ did with this wonderfull theme : https://github.com/leresteux/arduino_theme
+****************** Hardware **************************
+* 
 
     arduino uno / nano
     capteur hall > capteur à placer pour la fermeture (new)
@@ -15,6 +17,7 @@
     Servo
     Chrono
     RTClib (https://microcontrollerslab.com/ds3231-rtc-module-pinout-interfacing-with-arduino-features/) en IIC
+
 */
 
 
@@ -81,6 +84,7 @@ void setup() {
 
   } else {
     serial_date();
+    sunUpSunDown();
   }
 
   /*** reglage heure ***/
