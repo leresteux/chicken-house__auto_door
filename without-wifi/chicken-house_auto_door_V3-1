@@ -83,8 +83,9 @@ void setup() {
     Serial.flush();
 
   } else {
-    serial_date();
     sunUpSunDown();
+    serial_date();
+    
   }
 
   /*** reglage heure ***/
